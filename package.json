@@ -1,0 +1,24 @@
+{
+  "name": "@3xjn/roblox-css",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Event-driven Roblox backend for compiled CSS stylesheets.",
+  "main": "src/init.luau",
+  "files": [
+    "src",
+    "types",
+    "LICENSE.culori"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@3xjn/roblox-unicode": "git+https://github.com/3xjn/roblox-unicode.git#5e1a5c94578d88a07d551e031dc19b825392193e"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3xjn/roblox-css.git"
+  },
+  "homepage": "https://github.com/3xjn/roblox-css#readme",
+  "bugs": {
+    "url": "https://github.com/3xjn/roblox-css/issues"
+  }
+}
