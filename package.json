@@ -12,7 +12,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@3xjn/roblox-unicode": "git+https://github.com/3xjn/roblox-unicode.git#9bcdc13"
+    "@3xjn/roblox-unicode": "github:3xjn/roblox-unicode#9bcdc13b41bbabfd88bff261b1c10c799d6734a5"
   },
   "repository": {
     "type": "git",
