@@ -56,6 +56,9 @@ local function sceneInputs(options: Options): SceneCache.Inputs?
 	local result: SceneCache.Inputs = {
 		attributes = { type = true, src = true, value = true, ["default-value"] = true, placeholder = true },
 		states = {},
+		-- Range inputs have no native text editor; value can only affect their
+		-- computed CSS or a declared custom image-provider dependency.
+		ignoreRangeValue = true,
 	}
 	local function include(provider: BlockScene.ImageProvider?, inputs: ImageProviderInputs?): boolean
 		if not provider then
@@ -67,6 +70,7 @@ local function sceneInputs(options: Options): SceneCache.Inputs?
 		for _, name in inputs.attributes do
 			assert(type(name) == "string" and name ~= "", "Image attribute inputs require names")
 			result.attributes[name] = true
+			if name == "value" then result.ignoreRangeValue = false end
 		end
 		for _, name in inputs.states do
 			assert(type(name) == "string" and name ~= "", "Image state inputs require names")
@@ -522,7 +526,7 @@ function NativeHost.flushSync(self: Host): (boolean, string?)
 	if self._destroyed then return false, "css-host-destroyed" end
 	-- DOM geometry and computed-style reads are often clustered within one
 	-- event. A fully committed host needs no synchronous work for later reads.
-	if not self._flushing and self._lastFailure == nil then
+	if self._lastFailure == nil then
 		local revision, committed = self._styles:getRevision()
 		if revision == committed and self._committedSceneRevision == self._sceneRevision then
 			return true, nil

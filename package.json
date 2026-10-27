@@ -7,11 +7,12 @@
   "files": [
     "src",
     "types",
-    "LICENSE.culori"
+    "LICENSE.culori",
+    "default.project.json"
   ],
   "license": "MIT",
   "dependencies": {
-    "@3xjn/roblox-unicode": "git+https://github.com/3xjn/roblox-unicode.git#5e1a5c94578d88a07d551e031dc19b825392193e"
+    "@3xjn/roblox-unicode": "git+https://github.com/3xjn/roblox-unicode.git#9bcdc13"
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,13 @@
   "homepage": "https://github.com/3xjn/roblox-css#readme",
   "bugs": {
     "url": "https://github.com/3xjn/roblox-css/issues"
+  },
+  "types": "./types/consumer.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/consumer.d.ts",
+      "default": "./src/init.luau"
+    },
+    "./*": "./*"
   }
 }

@@ -214,7 +214,20 @@ local function capture(plan: SceneTypes.Plan, snapshot: SceneTypes.Snapshot): St
 	}
 end
 
-export type Inputs = { attributes: { [string]: boolean }, states: { [string]: boolean } }
+export type Inputs = { attributes: { [string]: boolean }, states: { [string]: boolean }, ignoreRangeValue: boolean? }
+
+local function sameAttributes(before: NodeState, node: Types.Node, inputs: Inputs?): boolean
+	if not inputs or not inputs.ignoreRangeValue or node.tag ~= "input"
+		or string.lower(node.attributes.type or "") ~= "range" then
+		return sameMap(before.attributes, node.attributes, if inputs then inputs.attributes else nil)
+	end
+	for name in inputs.attributes do
+		if name ~= "value" and before.attributes[name] ~= node.attributes[name] then
+			return false
+		end
+	end
+	return true
+end
 
 local function reuse(previous: State, snapshot: SceneTypes.Snapshot, inputs: Inputs?): SceneTypes.Plan?
 	if
@@ -237,7 +250,7 @@ local function reuse(previous: State, snapshot: SceneTypes.Snapshot, inputs: Inp
 			or node.text ~= before.text
 			or not TextSegments.same(before.textAfter, node.textAfter)
 			or not sameArray(before.children, node.children)
-			or not sameMap(before.attributes, node.attributes, if inputs then inputs.attributes else nil)
+			or not sameAttributes(before, node, inputs)
 			or not sameMap(before.states, node.states, if inputs then inputs.states else nil)
 			or not sameLayout(previous.styles[node], snapshot.styles[node])
 		then
@@ -353,7 +366,7 @@ function SceneCache.create(
 	inputs: Inputs?
 ): (SceneTypes.Provider, () -> (), () -> ({}?, {}?))
 	local dependencies = if inputs
-		then { attributes = table.clone(inputs.attributes), states = table.clone(inputs.states) }
+		then { attributes = table.clone(inputs.attributes), states = table.clone(inputs.states), ignoreRangeValue = inputs.ignoreRangeValue }
 		else nil
 	local previous: State? = nil
 	local function resolve(snapshot: SceneTypes.Snapshot): (SceneTypes.Plan?, string?)

@@ -12,7 +12,7 @@ local LayoutStyles = require(script.Parent.LayoutStyles)
 local GeneratedContent = require(script.Parent.GeneratedContent)
 local FlexLayouts = require(script.Parent.FlexLayouts)
 
-export type NodeInputs = { attributes: { [string]: boolean }, states: { [string]: boolean } }
+export type NodeInputs = { attributes: { [string]: boolean }, states: { [string]: boolean }, ignoreRangeValue: boolean? }
 
 export type Intrinsic = {
 	width: number,
@@ -124,7 +124,29 @@ local function sameInputs(a: NodeInputs?, b: NodeInputs?): boolean
 	if not a or not b then
 		return a == b
 	end
-	return sameMap(a.attributes, b.attributes) and sameMap(a.states, b.states)
+	return a.ignoreRangeValue == b.ignoreRangeValue
+		and sameMap(a.attributes, b.attributes) and sameMap(a.states, b.states)
+end
+
+local function sameAttributes(a: { [string]: string }, node: Types.Node, inputs: NodeInputs?, scoped: boolean): boolean
+	local names = if scoped and inputs then inputs.attributes else nil
+	if not inputs or not inputs.ignoreRangeValue or node.tag ~= "input"
+		or string.lower(node.attributes.type or "") ~= "range" then
+		return sameMap(a, node.attributes, names)
+	end
+	if names then
+		for name in names do
+			if name ~= "value" and a[name] ~= node.attributes[name] then return false end
+		end
+	else
+		for name, value in a do
+			if name ~= "value" and node.attributes[name] ~= value then return false end
+		end
+		for name in node.attributes do
+			if name ~= "value" and a[name] == nil then return false end
+		end
+	end
+	return true
 end
 
 local function inFlow(node: Types.Node, snapshot: SceneTypes.Snapshot): boolean
@@ -200,7 +222,7 @@ function BlockMeasurements.prepare(
 	end
 	if not sameInputs(cache.inputs, inputs) then
 		cache.inputs = if inputs
-			then { attributes = table.clone(inputs.attributes), states = table.clone(inputs.states) }
+			then { attributes = table.clone(inputs.attributes), states = table.clone(inputs.states), ignoreRangeValue = inputs.ignoreRangeValue }
 			else nil
 	end
 	cache.epoch, cache.viewport = snapshot.layoutRevision, snapshot.viewport
@@ -237,7 +259,7 @@ function BlockMeasurements.prepare(
 			and old.before == before
 			and old.after == after
 			and #old.children == #node.children
-			and sameMap(old.attributes, node.attributes)
+			and sameAttributes(old.attributes, node, inputs, false)
 			and sameMap(old.states, node.states)
 		if same then
 			for i, child in node.children do
@@ -275,7 +297,7 @@ function BlockMeasurements.prepare(
 			and LayoutStyles.sameIntrinsic(old.style, style)
 			and sameFlowPseudo(old.before, before)
 			and sameFlowPseudo(old.after, after)
-			and sameMap(old.attributes, node.attributes, inputs.attributes)
+			and sameAttributes(old.attributes, node, inputs, true)
 			and sameMap(old.states, node.states, inputs.states)
 			and oldFlowChildren ~= nil
 			and oldFlowVersions ~= nil
@@ -330,7 +352,7 @@ function BlockMeasurements.prepare(
 		intrinsics[node] = current.intrinsics
 		-- Bound duplicated fragment ownership in deep/wide trees. Larger
 		-- branches still format normally and reuse their smaller descendants.
-		if count <= 32 then
+		if count <= 1024 then
 			fragments[node] = current.fragments
 		end
 		return current.version

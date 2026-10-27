@@ -53,7 +53,7 @@ function FlowFragments.capture(
 	local privateKeys: { Types.Node } = {}
 	local owners: { [Types.Node]: Types.Node } = {}
 	for key, box in plan.boxes do
-		if box.node.tag == "img" or box.outOfFlow then
+		if box.outOfFlow then
 			return nil -- Replaced images and nested inline formatting keep their ordinary path.
 		end
 		table.insert(keys, key)

@@ -1,4 +1,6 @@
 /** Initial consumer declarations for the existing default scene. Not all low-level APIs are declared yet. */
+/** Names with implemented committed CSSOM value providers. */
+export declare const resolvedPropertyNames: readonly string[];
 export interface ValueToken {
   readonly kind: string;
   readonly value: string;
@@ -30,6 +32,26 @@ export interface InlineStyle {
     readonly source?: { readonly file: string; readonly line: number; readonly column: number };
   }[];
   readonly properties?: Readonly<Record<string, PropertyMetadata>>;
+}
+
+/** Existing declaration IR with a finite scalar sizing-property write grammar.
+ * Unsupported parsers return a reason before changing any declaration. */
+export declare const InlineStyle: {
+ readonly copy:(style?:InlineStyle)=>InlineStyle|undefined;
+ readonly equal:(left?:InlineStyle,right?:InlineStyle)=>boolean;
+ readonly sizingProperties:readonly string[];
+ readonly getProperty:(style:InlineStyle|undefined,name:string)=>LuaTuple<[string,string]>;
+ readonly setProperty:(style:InlineStyle|undefined,name:string,value:string,priority?:string)=>LuaTuple<[InlineStyle|undefined,string|undefined]>;
+};
+/** Native host methods use the actual owner node type, not a DOM-shaped record.
+ * flushSync never waits: in-progress work, pending text or failed rendering
+ * returns false plus the native reason rather than a stale layout. */
+export interface InlineStyleHost<Node> {
+ getInlineStyle(node:Node):InlineStyle;
+ setInlineStyle(node:Node,style:InlineStyle):void;
+ getInlineProperty(node:Node,name:string):LuaTuple<[string,string]>;
+ setInlineProperty(node:Node,name:string,value:string,priority?:string):void;
+ flushSync():LuaTuple<[boolean,string|undefined]>;
 }
 
 export interface Stylesheet {
@@ -130,6 +152,24 @@ export interface HostOptions {
 export interface ComputedValueStyle {
   readonly properties: Readonly<Record<string, readonly ValueToken[]>>;
   readonly unresolved: Readonly<Record<string, string>>;
+}
+
+/** Cascade winner ordering retained with each computed property. */
+export interface ComputedPriority {
+  readonly important: boolean;
+  readonly inline?: boolean;
+  readonly layer: readonly number[];
+  readonly specificity: readonly number[];
+  readonly order: number;
+  readonly logical?: boolean;
+}
+
+/** Computed CSS token scene, matching Types.ComputedStyle. These are token
+ * values; used geometry and animated CSSOM values use the host query APIs. */
+export interface ComputedStyle extends ComputedValueStyle {
+  readonly variables: Readonly<Record<string, readonly ValueToken[]>>;
+  readonly unresolvedVariables?: Readonly<Record<string, string>>;
+  readonly priorities: Readonly<Record<string, ComputedPriority>>;
 }
 
 export interface IntrinsicNode extends ImageNode {
@@ -289,6 +329,14 @@ export interface TransformGeometry {
 export interface BoxGeometry extends TransformGeometry {
   readonly paddingWidth: number;
   readonly paddingHeight: number;
+}
+
+/** Read-only, event-driven observations of committed native CSS playback.
+ * Timings use CSS seconds. Replacements cancel the preceding episode. */
+export interface PlaybackHandle {
+  readonly state: () => 'running' | 'paused' | 'finished' | 'canceled';
+  readonly timing: () => { readonly duration: number; readonly delay: number; readonly iterations: number };
+  readonly subscribe: (callback: (outcome: 'finished' | 'canceled') => void) => () => void;
 }
 
 export interface MeasurementContext {

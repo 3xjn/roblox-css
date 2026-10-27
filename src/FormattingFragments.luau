@@ -199,7 +199,7 @@ function FormattingFragments.capture(
 			cost += #box.runs
 		end
 	end
-	if cost > 256 then
+	if cost > 8192 then
 		return
 	end
 	local boxes, lists, styles = {}, {}, {}

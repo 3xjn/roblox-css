@@ -1107,9 +1107,15 @@ function StyleRoot._invalidate(self: Root, full: boolean?, retainSelectors: bool
 			if WorkQueue.isCancelled(failure) then
 				-- The superseding event already queued the next pass. It must also
 				-- cover dirty branches consumed by this interrupted computation.
-				self._fullInvalidation = true
+				if fullInvalidation then
+					self._fullInvalidation = true
+				else
+					for node in dirtyNodes do self._dirtyNodes[node] = true end
+					for state in changedStates do self._changedStates[state] = true end
+					self._inputInvalidation = self._inputInvalidation or inputInvalidation
+				end
 				self._fontsChanged = self._fontsChanged or fontsChanged
-				-- Keep versioned selector observations. The full pass revalidates
+				-- Keep versioned selector observations. The next pass revalidates
 				-- their scope/inputs and inherited value context before reuse.
 				-- Explicit environment/resource invalidation still clears them.
 			else
