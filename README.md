@@ -10,7 +10,7 @@ Related packages:
 
 - [@3xjn/roblox-unicode](https://github.com/3xjn/roblox-unicode)
 
-Authenticate Git with GitHub before running `npm install`; development dependencies use the related private GitHub repositories.
+Run `npm install` to install development dependencies from the related GitHub repositories.
 
 Build the Luau module with `rojo build default.project.json --output Css.rbxm`. Runtime imports expect the related modules as siblings in the Roblox package tree.
 
