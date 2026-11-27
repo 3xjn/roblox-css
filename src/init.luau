@@ -46,6 +46,7 @@ local Animations = require(script.Animations)
 local AnimationTiming = require(script.AnimationTiming)
 local AnimationTracks = require(script.AnimationTracks)
 local ResolvedStyle = require(script.ResolvedStyle)
+local Builder = require(script.Builder)
 
 export type Root = StyleRoot.Root
 export type RootOptions = StyleRoot.RootOptions
@@ -139,6 +140,7 @@ export type TextLineResult = TextLine.Result
 export type TextParagraphResult = TextParagraph.Result
 
 return {
+	create = Builder.create,
 	resolvedPropertyNames = ResolvedStyle.names,
 	createRoot = StyleRoot.createRoot,
 	createHost = NativeHost.create,
