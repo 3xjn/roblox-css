@@ -1,0 +1,36 @@
+{
+  "name": "PlainCssDemo",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Packages": {
+        "$className": "Folder",
+        "Css": {
+          "$path": "../../src"
+        },
+        "Unicode": {
+          "$path": "../../../roblox-unicode/src"
+        },
+        "Primitives": {
+          "$path": "../../../roblox-primitives/src"
+        }
+      },
+      "Generated": {
+        "$className": "Folder",
+        "Stylesheet": {
+          "$path": "generated/Stylesheet.json"
+        }
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "PlainCssDemo": {
+          "$path": "PlainCssDemo.client.luau"
+        }
+      }
+    }
+  }
+}
